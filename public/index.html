@@ -1,7 +1,7 @@
 <html>
 <head> 
 
-  <title>🥕PLOT</title>
+  <title>PLOT</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -12,84 +12,175 @@
   
   <!-- Garden Gnome Font via monotype. -->
   <link href="https://cdn.fonts.net/kit/a8c1cf00-afc3-11ec-8a2a-0203e3e70972/a8c1cf00-afc3-11ec-8a2a-0203e3e70972.css" rel="stylesheet" />
+  <link href="https://cdn.fonts.net/kit/c915bb20-9364-11ec-9ce3-0220834439f4/c915bb20-9364-11ec-9ce3-0220834439f4.css" rel="stylesheet" />
 
   <link rel="stylesheet" href="styles.css">
   
   <!-- Base 64 inline favicon generated at https://png-pixel.com/ -->
   <link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMPvnxPwAG0gMeEo1rnwAAAABJRU5ErkJggg==">
 
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <!-- Our VueJS app -->
   <script defer src="script.js"></script>
 
 </head>
 <body id="app">
  
-    
-  <!-- Ask for the user's name if needed -->
-  <section v-if="!plot.farmer" id="hello">
-    <a class="logo" href="/"> 🥕PLOT </a>
-    <form @submit.prevent="hello">
-      <label>My name is:</label> 
-      <input type="text" v-model="myNameIs" placeholder="(e.g. Farmer Zuke)">
-      <button>Let's Grow!</button> 
-    </form>
+  
+
+
+  <!-- <main> -->
+    <!-- Ask for the user's name if needed -->
+    <section v-if="!team.trainer" id="hello">
+      <a class="logo" href="/"> team </a>
+      <form @submit.prevent="hello">
+        <label>My name is:</label> 
+        <input type="text" v-model="myNameIs" placeholder="(e.g. trainer Ash)">
+        <button>Start your team!</button> 
+      </form>
+    </section>
+
+    <!-- After the trainer provides their name, 
+        show the navigation -->
+    <nav v-if="team.trainer" id="navigation" class="overlay">
+      <a class="logo" href="/"> team </a>
+      <!-- Search form handled by "search" function in VueJS. -->
+      <form id="findPokemons"  @submit.prevent="search">
+        <input type="text" v-model="searchFilter" placeholder="Find Pokemons (e.g. Pikachu)"  value="a">
+        
+        <button>🔎</button>
+      </form>
+      <!-- Display the trainer's team  -->
+      <button id="teamButton" @click="clearSearch()">{{team.trainer}}'s team</button>
+    </nav>
+
+  <!-- A place to display notices and errors. -->
+  <section v-if="notice" id="notice">
+    <div> {{ notice }}</div>
   </section>
 
-  <!-- After the farmer provides their name, 
-      show the navigation -->
-  <nav v-if="plot.farmer" id="navigation" class="overlay">
-    <a class="logo" href="/"> 🥕PLOT </a>
-    <!-- Search form handled by "search" function in VueJS. -->
-    <form id="findCrops"  @submit.prevent="search">
-      <input type="text" v-model="searchFilter" placeholder="Find Crops (e.g. Corn)">
-      <button>🔎</button>
-    </form>
-    <!-- Display the farmer's plot  -->
-    <button id="plotButton" @click="clearSearch()">{{plot.farmer}}'s plot</button>
-  </nav>
-
- <!-- A place to display notices and errors. -->
- <section v-if="notice" id="notice">
-  <div> {{ notice }}</div>
-</section>
-
-  <!-- If there are any search results, they will appear here -->
-  <section v-if="results" id="resultsArea">
-    <div id="results">
-      <div v-for="crop in results" class="result" > 
-        <div class="circle">
-          <img :src="crop.attributes.main_image_path" @error="skip(crop)">
-        </div> 
-        <h3>{{ crop.attributes.name }}</h3>
-        <button class="remove" v-if="isOwned(crop)" @click="remove(crop)"> ❌ </button>
-        <button class="add" v-if="!isOwned(crop)" @click="add(crop)"> ➕ </button>  
+    <!-- If there are any search results, they will appear here -->
+    <section v-if="results" id="resultsArea">
+      <div id="results">
+        <div v-for="pokemon in results" class="result" > 
+          <div class="circle">
+            <img :src="pokemon.sprites.front_default" @error="skip(pokemon)">
+            <!-- <img id="pokeImage"> -->
+          </div> 
+          <h3>{{ pokemon.name }}</h3>
+          <button class="remove" v-if="isOwned(pokemon)" @click="remove(pokemon)"> ❌ </button>
+          <button class="add" v-if="!isOwned(pokemon)" @click="add(pokemon)"> ➕ </button>  
+        </div>
       </div>
-    </div>
-    <div id="close">
-      <button @click="clearSearch()">Close</button>
-    </div>
-  </section>
+      <div id="close">
+        <button @click="clearSearch()">Close</button>
+      </div>
+    </section>
 
-  <!-- Show the farmer's current plot  -->
-  <section v-if="plot.crops.length" id="plot"> 
-    <div v-for="crop in plot.crops" class="crop">
-      <div class="circle">
-        <img :src="crop.attributes.main_image_path">
+    <!-- Show the trainer's current team  -->
+    <section v-if="team.pokemons.length" id="team"> 
+      <div v-for="pokemon in team.pokemons" class="pokemon">
+        <div class="circle">
+          <img :src="pokemon.sprites.front_default" @error="skip(pokemon)">
+        </div> 
+        <h3>{{ pokemon.name }}</h3>
+        <button class="remove" @click="remove(pokemon)" > ❌ </button>
+
+        <div class="moveArea">
+          <div class="moveSelect">
+            <div class="move1">
+              <span class="moveText">{{ pokemon.move1 }}</span>
+              <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 1)">
+                <option v-for="move in pokemon.moves" :value="move.move.name">
+                  {{ move.move.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="moveSelect">
+            <div class="move2">
+              <span class="moveText">{{ pokemon.move2 }}</span>
+              <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 2)">
+                <option v-for="move in pokemon.moves" :value="move.move.name" >
+                  {{ move.move.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="moveSelect">
+            <div class="move3">
+              <span class="moveText">{{ pokemon.move3 }}</span>
+              <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 3)">
+                <option v-for="move in pokemon.moves" :value="move.move.name" >
+                  {{ move.move.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="moveSelect">
+            <div class="move4">
+              <span class="moveText"> {{ pokemon.move4 }}</span>
+              <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 4)">
+                <option v-for="move in pokemon.moves" :value="move.move.name" >
+                  {{ move.move.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- <div class="itemSelect">
+          <div class="item">
+            <span class="moveText"> {{ pokemon.move4 }}</span>
+            <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 4)">
+              <option v-for="move in pokemon.moves" :value="move.move.name" >
+                {{ move.move.name }}
+              </option>
+            </select>
+          </div>
+        </div> -->
       </div> 
-      <h3>{{ crop.attributes.name }}</h3>
-      <button class="remove" @click="remove(crop)"> ❌ </button>
-    </div> 
-  </section> 
+    </section> 
 
-  <!-- If the user entered their name but doesnt have plants yet
-  Show an inspiring message.-->
-  <div id="emptyPlot" v-if="plot.farmer && !plot.crops.length">
-    <p>It's a great day to plant something new! 🌽</p>
-  </div>
- 
-  <footer>
-    <div id="credits">Made by <a href="https://nsitu.ca">Harold</a>. Thanks to <a href="https://github.com/openfarmcc/OpenFarm">OpenFarm API</a> for the plant data. Plots persisted with <a href="https://www.mongodb.com/">MongoDB</a>. Backend written with <a href="https://nodejs.org/">NodeJS</a> and <a href="https://expressjs.com/">Express</a>. Frontend written with <a href="https://vuejs.org/">VueJS</a>. Hosted by Heroku. </div>
-  </footer>
+    <!-- If the user entered their name but doesnt have plants yet
+    Show an inspiring message.-->
+    <div id="emptyteam" v-if="team.trainer && !team.pokemons.length">
+      <p>Start your team</p>
+    </div>
+  
+    <footer>
+      <div id="credits">Made by <a href="https://visic.design">Jakob</a>. Thanks to <a href="https://github.com/openfarmcc/OpenFarm">OpenFarm API</a> for the plant data. Plots persisted with <a href="https://www.mongodb.com/">MongoDB</a>. Backend written with <a href="https://nodejs.org/">NodeJS</a> and <a href="https://expressjs.com/">Express</a>. Frontend written with <a href="https://vuejs.org/">VueJS</a>. Hosted by Heroku. </div>
+    </footer>
+  <!-- </main> -->
+
+  <!-- <div class="background"> -->
+    <div class="ball1">
+      <div><img class="backgroundBall" id="pokeball1" src="images/pb1.png" alt=""></div>
+      <div><img class="backgroundBall" id="pokeball1" src="images/pb1.png" alt=""></div>
+      <div><img class="backgroundBall" id="pokeball1" src="images/pb1.png" alt=""></div>
+    </div>
+    <div class="ball2">
+      <div><img class="backgroundBall" id="pokeball2" src="images/pb2.png" alt=""></div>
+      <div><img class="backgroundBall" id="pokeball2" src="images/pb2.png" alt=""></div>
+      <div><img class="backgroundBall" id="pokeball2" src="images/pb2.png" alt=""></div>
+    </div>
+    <div class="ball3">
+      <div><img class="backgroundBall" id="pokeball3" src="images/pb3.png" alt=""></div>
+      <div><img class="backgroundBall" id="pokeball3" src="images/pb3.png" alt=""></div>
+      <div><img class="backgroundBall" id="pokeball3" src="images/pb3.png" alt=""></div>
+    </div>
+    <div class="ball4">
+      <div><img class="backgroundBall" id="pokeball4" src="images/pb4.png" alt=""></div>
+      <div><img class="backgroundBall" id="pokeball4" src="images/pb4.png" alt=""></div>
+      <div><img class="backgroundBall" id="pokeball4" src="images/pb4.png" alt=""></div>
+    </div>
+    <div class="ball5">
+      <div><img class="backgroundBall" id="pokeball5" src="images/pb5.png" alt=""></div>
+      <div><img class="backgroundBall" id="pokeball5" src="images/pb5.png" alt=""></div>
+      <div><img class="backgroundBall" id="pokeball5" src="images/pb5.png" alt=""></div>
+    </div>  
+
 
 </body>
 </html>
