@@ -126,7 +126,7 @@ app.post( '/team', bodyParser.json(), (req,res) => {
 
 
 /** Tell Express to start listening. */
-const PORT = process.env.PORT || 6001 
+const PORT = process.env.PORT || 3000 
 app.listen(PORT, () => {
   console.log("We are live on port "+PORT )
 })

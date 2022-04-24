@@ -1,7 +1,7 @@
 <html>
 <head> 
 
-  <title>PLOT</title>
+  <title>Pokemon Teams</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -27,28 +27,97 @@
 </head>
 <body id="app">
  
-  
 
+  <div class="wrapper">
 
+  <section v-if="team.pokemons.length" class="team"> 
+    <div id="animationGrid" class="pokemonGrid">
+      
+      <div v-for="pokemon in team.pokemons" class="pokemon">
+        <div class="animationNoSpin" >
+          <div class="pokemonImage">
+            <img :src="pokemon.sprites.front_default" @error="skip(pokemon)">
+          </div> 
+          <h3>{{ pokemon.name }}</h3>
+          <button class="remove" @click="remove(pokemon)" > ❌ </button>
+          
+          <div class="moveArea">
+            <div class="moveSelect">
+              <div class="move1">
+                <span class="moveText">{{ pokemon.move1 }}</span>
+                <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 1)">
+                  <option v-for="move in pokemon.moves" :value="move.move.name">
+                    {{ move.move.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="moveSelect">
+              <div class="move2">
+                <span class="moveText">{{ pokemon.move2 }}</span>
+                <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 2)">
+                  <option v-for="move in pokemon.moves" :value="move.move.name" >
+                    {{ move.move.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="moveSelect">
+              <div class="move3">
+                <span class="moveText">{{ pokemon.move3 }}</span>
+                <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 3)">
+                  <option v-for="move in pokemon.moves" :value="move.move.name" >
+                    {{ move.move.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="moveSelect">
+              <div class="move4">
+                <span class="moveText"> {{ pokemon.move4 }}</span>
+                <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 4)">
+                  <option v-for="move in pokemon.moves" :value="move.move.name" >
+                    {{ move.move.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="itemSelect">
+        <div class="item">
+          <span class="moveText"> {{ pokemon.move4 }}</span>
+          <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 4)">
+            <option v-for="move in pokemon.moves" :value="move.move.name" >
+              {{ move.move.name }}
+            </option>
+          </select>
+        </div>
+      </div> -->
+    </div> 
+  </section> 
   <!-- <main> -->
     <!-- Ask for the user's name if needed -->
     <section v-if="!team.trainer" id="hello">
       <a class="logo" href="/"> team </a>
       <form @submit.prevent="hello">
-        <label>My name is:</label> 
-        <input type="text" v-model="myNameIs" placeholder="(e.g. trainer Ash)">
-        <button>Start your team!</button> 
+        <label>My name is:</label>
+        <input type="text" v-model="myNameIs" placeholder="(e.g. trainer Ash)" value="a">
+        <button>Start your team!</button>
       </form>
     </section>
 
+
+    <section class="navTeams">
     <!-- After the trainer provides their name, 
         show the navigation -->
     <nav v-if="team.trainer" id="navigation" class="overlay">
       <a class="logo" href="/"> team </a>
       <!-- Search form handled by "search" function in VueJS. -->
       <form id="findPokemons"  @submit.prevent="search">
-        <input type="text" v-model="searchFilter" placeholder="Find Pokemons (e.g. Pikachu)"  value="a">
-        
+        <input type="text" value="a" v-model="searchFilter" placeholder="Find Pokemons (e.g. Pikachu)"  value="a">
         <button>🔎</button>
       </form>
       <!-- Display the trainer's team  -->
@@ -79,107 +148,45 @@
     </section>
 
     <!-- Show the trainer's current team  -->
-    <section v-if="team.pokemons.length" id="team"> 
-      <div v-for="pokemon in team.pokemons" class="pokemon">
-        <div class="circle">
-          <img :src="pokemon.sprites.front_default" @error="skip(pokemon)">
-        </div> 
-        <h3>{{ pokemon.name }}</h3>
-        <button class="remove" @click="remove(pokemon)" > ❌ </button>
-
-        <div class="moveArea">
-          <div class="moveSelect">
-            <div class="move1">
-              <span class="moveText">{{ pokemon.move1 }}</span>
-              <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 1)">
-                <option v-for="move in pokemon.moves" :value="move.move.name">
-                  {{ move.move.name }}
-                </option>
-              </select>
-            </div>
-          </div>
-          <div class="moveSelect">
-            <div class="move2">
-              <span class="moveText">{{ pokemon.move2 }}</span>
-              <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 2)">
-                <option v-for="move in pokemon.moves" :value="move.move.name" >
-                  {{ move.move.name }}
-                </option>
-              </select>
-            </div>
-          </div>
-          <div class="moveSelect">
-            <div class="move3">
-              <span class="moveText">{{ pokemon.move3 }}</span>
-              <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 3)">
-                <option v-for="move in pokemon.moves" :value="move.move.name" >
-                  {{ move.move.name }}
-                </option>
-              </select>
-            </div>
-          </div>
-          <div class="moveSelect">
-            <div class="move4">
-              <span class="moveText"> {{ pokemon.move4 }}</span>
-              <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 4)">
-                <option v-for="move in pokemon.moves" :value="move.move.name" >
-                  {{ move.move.name }}
-                </option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- <div class="itemSelect">
-          <div class="item">
-            <span class="moveText"> {{ pokemon.move4 }}</span>
-            <select class="selectMove" v-model="selected" @change="changeMove(selected, pokemon, 4)">
-              <option v-for="move in pokemon.moves" :value="move.move.name" >
-                {{ move.move.name }}
-              </option>
-            </select>
-          </div>
-        </div> -->
-      </div> 
-    </section> 
+   
 
     <!-- If the user entered their name but doesnt have plants yet
     Show an inspiring message.-->
     <div id="emptyteam" v-if="team.trainer && !team.pokemons.length">
       <p>Start your team</p>
     </div>
-  
+  </section>
     <footer>
       <div id="credits">Made by <a href="https://visic.design">Jakob</a>. Thanks to <a href="https://github.com/openfarmcc/OpenFarm">OpenFarm API</a> for the plant data. Plots persisted with <a href="https://www.mongodb.com/">MongoDB</a>. Backend written with <a href="https://nodejs.org/">NodeJS</a> and <a href="https://expressjs.com/">Express</a>. Frontend written with <a href="https://vuejs.org/">VueJS</a>. Hosted by Heroku. </div>
     </footer>
-  <!-- </main> -->
-
-  <!-- <div class="background"> -->
-    <div class="ball1">
-      <div><img class="backgroundBall" id="pokeball1" src="images/pb1.png" alt=""></div>
-      <div><img class="backgroundBall" id="pokeball1" src="images/pb1.png" alt=""></div>
-      <div><img class="backgroundBall" id="pokeball1" src="images/pb1.png" alt=""></div>
+    <div class="background"> 
+      <div class="ball1">
+        <div><img class="backgroundBall" id="pokeball1" src="images/pb1.png" alt=""></div>
+        <div><img class="backgroundBall" id="pokeball1" src="images/pb1.png" alt=""></div>
+        <div><img class="backgroundBall" id="pokeball1" src="images/pb1.png" alt=""></div>
+      </div>
+      <div class="ball2">
+        <div><img class="backgroundBall" id="pokeball2" src="images/pb2.png" alt=""></div>
+        <div><img class="backgroundBall" id="pokeball2" src="images/pb2.png" alt=""></div>
+        <div><img class="backgroundBall" id="pokeball2" src="images/pb2.png" alt=""></div>
+      </div>
+      <div class="ball3">
+        <div><img class="backgroundBall" id="pokeball3" src="images/pb3.png" alt=""></div>
+        <div><img class="backgroundBall" id="pokeball3" src="images/pb3.png" alt=""></div>
+        <div><img class="backgroundBall" id="pokeball3" src="images/pb3.png" alt=""></div>
+      </div>
+      <div class="ball4">
+        <div><img class="backgroundBall" id="pokeball4" src="images/pb4.png" alt=""></div>
+        <div><img class="backgroundBall" id="pokeball4" src="images/pb4.png" alt=""></div>
+        <div><img class="backgroundBall" id="pokeball4" src="images/pb4.png" alt=""></div>
+      </div>
+      <div class="ball5">
+        <div><img class="backgroundBall" id="pokeball5" src="images/pb5.png" alt=""></div>
+        <div><img class="backgroundBall" id="pokeball5" src="images/pb5.png" alt=""></div>
+        <div><img class="backgroundBall" id="pokeball5" src="images/pb5.png" alt=""></div>
+      </div>  
     </div>
-    <div class="ball2">
-      <div><img class="backgroundBall" id="pokeball2" src="images/pb2.png" alt=""></div>
-      <div><img class="backgroundBall" id="pokeball2" src="images/pb2.png" alt=""></div>
-      <div><img class="backgroundBall" id="pokeball2" src="images/pb2.png" alt=""></div>
-    </div>
-    <div class="ball3">
-      <div><img class="backgroundBall" id="pokeball3" src="images/pb3.png" alt=""></div>
-      <div><img class="backgroundBall" id="pokeball3" src="images/pb3.png" alt=""></div>
-      <div><img class="backgroundBall" id="pokeball3" src="images/pb3.png" alt=""></div>
-    </div>
-    <div class="ball4">
-      <div><img class="backgroundBall" id="pokeball4" src="images/pb4.png" alt=""></div>
-      <div><img class="backgroundBall" id="pokeball4" src="images/pb4.png" alt=""></div>
-      <div><img class="backgroundBall" id="pokeball4" src="images/pb4.png" alt=""></div>
-    </div>
-    <div class="ball5">
-      <div><img class="backgroundBall" id="pokeball5" src="images/pb5.png" alt=""></div>
-      <div><img class="backgroundBall" id="pokeball5" src="images/pb5.png" alt=""></div>
-      <div><img class="backgroundBall" id="pokeball5" src="images/pb5.png" alt=""></div>
-    </div>  
+  </div>
 
 
 </body>

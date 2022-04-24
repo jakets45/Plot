@@ -99,6 +99,21 @@ const app = Vue.createApp({
                 this.notice = "team full, you can have a max of 6 team members"
             }
 
+            let animation = document.getElementById("animationGrid");
+            let animationNoSpin = document.getElementsByClassName('animationNoSpin');
+
+            console.log(animationNoSpin);
+            
+            animation.style.animation = 'none';
+            void animation.offsetWidth;
+            animation.style.animation = null;
+
+            for(var i=0; i<animationNoSpin.length; i++) {
+                animationNoSpin[i].style.animation = 'none';
+                void animationNoSpin[i].offsetWidth;
+                animationNoSpin[i].style.animation = 'orbit var(--speed) linear reverse infinite';
+            }
+     
         },
         changeMove(pokemonMove, pokemonIndex, moveNumber) {
             // pokemonMove = the selected move from drop down, pokemonIndex = the pokemon, moveNumber = which text box
